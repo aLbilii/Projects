@@ -1,0 +1,571 @@
+"""
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    __  __          _ _           _   ____  _                 
+   |  \/  | ___  __| (_) ___ __ _| | / ___|| |_ ___  _ __ ___ 
+   | |\/| |/ _ \/ _` | |/ __/ _` | | \___ \| __/ _ \| '__/ _ \
+   | |  | |  __/ (_| | | (_| (_| | |  ___) | || (_) | | |  __/
+   |_|  |_|\___|\__,_|_|\___\__,_|_| |____/ \__\___/|_|  \___|
+                                                              
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
+
+from termcolor import colored
+import pyfiglet
+from csv import *
+import mysql.connector as m 
+
+con=m.connect(host='localhost',user='root',password='root',database='albin_project') 
+if con.is_connected():
+    print(colored(('MYSQL Connected successfully!!!!'), color="green")) 
+else:
+    print(colored(('MYSQL Connection Unsuccessful!!!! \nTry Again!!'), color="red"))  
+cursor=con.cursor() 
+
+
+
+# MENU
+def menu():
+    print(colored(('+-----------------------+'), color="yellow"))
+    print(colored(('|'), color="yellow"),'        CBSE PRATICAL         ',colored(('|'), color="yellow"))
+    print(colored(('+---+-------------------+'), color="yellow"))
+    print(colored(('| 1 | '), color="yellow"),'ADD RECORDS     ',colored(('|'), color="yellow"))
+    print(colored(('| 2 | '), color="yellow"),'EDIT RECORD     ',colored(('|'), color="yellow"))
+    print(colored(('| 3 | '), color="yellow"),'DELETE RECORD   ',colored(('|'), color="yellow"))
+    print(colored(('| 8 | '), color="yellow"),'SORT RECORDS    ',colored(('|'), color="yellow"))
+    print(colored(('| 9 | '), color="yellow"),'DISPLAY RECORDS ',colored(('|'), color="yellow"))
+    print(colored(('| 0 | '), color="yellow"),'REPEAT OPTION   ',colored(('|'), color="yellow"))
+    print(colored(('|10 | '), color="yellow"),'EXIT PROGRAM    ',colored(('|'), color="yellow"))
+    print(colored(('+---+-------------------+'), color="yellow"))
+
+
+# CREATE                           
+def create():
+    x=int(input("Item table ->1  Supplier table ->2  Sales table ->3 \nEnter no.: ")) 
+    if x==1:
+        print("Item Table")
+        while True: 
+            itcode=input("\nEnter item number: ")
+            itname=input('Enter the item name: ') 
+            itstock=int(input("Enter the stock: ")) 
+            itprice=input("Enter price per piece: ")
+            sql="insert into item (itcode,itname,itstock,itprice) values('{}','{}',{},{})".format(itcode,itname,itstock,itprice) 
+            cursor.execute(sql)
+            con.commit() 
+            print("Printed in MySQL!!!")
+            x=input('do u want to continue: ')
+            if x.lower()!='y': 
+                break 
+    elif x==2:
+        while True:
+            print("Supplier Table")
+            itcode=input("\nEnter item number: ")
+            sql=("select itname from item where itcode={}").format(itcode) 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                itname=(i[0])
+            input("   Item name= '",itname,"'")
+            supcode=input("Enter supplier code: ")
+            supname=input('Enter the supplier name: ')
+            supcont=int(input("Enter the supplier contact: "))
+            sql="insert into supplier values('{}','{}','{}','{}',{})".format(itcode,itname,supcode,supname,supcont) 
+            cursor.execute(sql)
+            con.commit() 
+            print("Printed in MySQL!!!")
+            x=input('Do u want to continue: ')
+            if x.lower()!='y': 
+                break
+                
+    elif x==3:        
+        print("Monthly Sales Table")
+        while True:
+            itcode=input("\nEnter item number: ")
+            sql=("select * from item where itcode={}").format(itcode) 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                itname=(i[2])
+            input("   Item name= '",itname,"'")
+            x=input("Do u want to enter sales amount: ")
+            if x.lower()=='y':
+                jan=int(input("Janunary Amount:"))
+                feb=int(input("February Amount:"))
+                mar=int(input("March Amount:"))
+                api=int(input("April Amount:"))
+                may=int(input("May Amount:"))
+                jun=int(input("June Amount:"))
+                jul=int(input("July Amount:"))
+                aug=int(input("August Amount:"))
+                sep=int(input("September Amount:"))
+                octo=int(input("October Amount:"))
+                nov=int(input("November Amount:"))
+                dece=int(input("December Amount:"))
+                
+            else:
+                jan=0;feb=0;mar=0;api=0;may=0;jun=0;jul=0;aug=0;sep=0;octo=0;nov=0;dece=0
+            
+            total_sales=jan+feb+mar+api+may+jun+jul+aug+sep+octo+nov+dece
+            sql=("select itprice from item where itcode={}").format(itcode) 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                itcost=(i[0])
+            total_cost=total_sales*itcost
+            sql="insert into monthly_sales (itcode,itname,jan,feb,mar,api,may,jun,jul,aug,sep,oct,nov,dece,total_sales,total_cost,itcost) values('{}','{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{})".format(itcode,itname,jan,feb,mar,api,may,jun,jul,aug,sep,octo,nov,dece,total_sales,total_cost,itcost) 
+            cursor.execute(sql)
+            con.commit()
+            print("Total sales= ",total_sales)
+            print("Total cost= ",total_cost)
+            print("Printed in MySQL!!!")
+            x=input('Do u want to continue: ')
+            if x.lower()!='y': 
+                break
+        
+
+    else:
+        print("Enter correct option!!!")
+
+# EDIT
+def edit():
+    x=int(input("Item table ->1 Supplier table ->2 Sales Table-> 3 \nEnter no.: ")) 
+    if x==1:
+        print("\n Item Table")
+        x=int(input("1. Stock   2. Price  \nEnter no.:"))
+        while True:
+            if x==1:
+                itcode=input("Enter item code: ") 
+                stock=int(input("Enter new stock amount: ")) 
+                sql='update item set itstock={} where itcode="{}"'.format(stock,itcode)
+                cursor.execute(sql)
+                con.commit()
+                print("Edited table successfully!!!")
+                break
+                
+            elif x==2:
+                itcode=input("Enter item code: ") 
+                itprice=int(input("Enter new item price: ")) 
+                sql='update item set itprice={} where itcode="{}"'.format(itprice,itcode)
+                cursor.execute(sql)
+                con.commit()
+                print("Edited table successfully!!!")
+                break
+                
+            else:
+                print('Enter correct option!!')
+            
+    elif x==2:
+        print("Supplier Table")
+        x=int(input("1. Name chamge 2. Number change  \nEnter no.:"))
+        while True:
+            if x==1:
+                supcode=input("Enter item code: ")
+                supname=input("Enter new supplier name: ")
+                sql='update supplier set supname="{}" where supcode="{}"'.format(supname,supcode)
+                cursor.execute(sql)
+                con.commit()
+                print("Edited table successfully!!!")
+                break
+                
+                
+            elif x==2:
+                itname=input("Enter item code: ")
+                supcont=int(input("Enter new contact no.: "))
+                sql='update supplier set supcont={} where itname="{}"'.format(supcont,itname)
+                cursor.execute(sql)
+                con.commit()
+                print("Edited table successfully!!!")
+                break
+
+            else:
+                print("Enter correct option!!!")
+            
+    elif x==3:
+        print("Monthly Sales Table")
+        while True:
+            itcode=input("Enter Item code: ")
+            x=int(input("Enter the month no.: "))
+            month=''
+            if x==1:
+                month='jan'
+            elif x==2:
+                month='Feb'
+            elif x==3:
+                month='Mar'
+            elif x==4:
+                month='Api'
+            elif x==5:
+                month='May'
+            elif x==6:
+                month='Jun'
+            elif x==7:
+                month='Jul'
+            elif x==8:
+                month='Aug'
+            elif x==9:
+                month='Sep'
+            elif x==10:
+                month='Oct'
+            elif x==11:
+                month='Nov'
+            elif x==12:
+                month='Dece'
+            
+            new=int(input("Enter the new amount for the month: "))
+            sql='update monthly_sales set {}={} where itcode="{}"'.format(month,new,itcode)
+            cursor.execute(sql)
+            con.commit()
+            print("Edited table successfully!!!")
+            break
+
+        
+    else:
+        print("Enter correct option!!!")
+
+# DELETE
+def delete():
+    x=int(input("Item table ->1 Supplier table ->2 Sales Table -> 3 \nEnter no.: ")) 
+    if x==1:
+        print("Item Table")
+        itno=input("Enter the item code: ")
+        sql="delete from item where itcode='{}'".format(itno) 
+        cursor.execute(sql) 
+        con.commit()
+        print("Details deleted!!!!")
+        
+    elif x==2:
+        print("Supplier Table")
+        itcode=input("Enter the item code: ")
+        sql="delete from supplier where itcode='{}'".format(itcode) 
+        cursor.execute(sql) 
+        con.commit()
+        print("Details deleted!!!!")
+        
+    elif x==3:
+        print("Sales Table")
+        itno=input("Enter the item code: ")
+        sql="delete from monthly_sales where itcode='{}'".format(itno) 
+        cursor.execute(sql) 
+        con.commit()
+        print("Details deleted!!!!")
+    else:
+        print("Enter correct option!!!")
+
+# DISPLAY
+def display():
+    x=int(input("Item table ->1 Supplier table ->2 Sales Table -> 3 \nEnter no.: ")) 
+    if x==1:
+        o=pyfiglet.figlet_format("ITEM Table")
+        print(o)        
+        sql=("select * from item") 
+        cursor.execute(sql) 
+        rs=cursor.fetchall()
+        print("""
+---------+-------+-----------------------+-------+-------+
+ slno    | itcode| itname                |itstock|itprice|
+---------+-------+-----------------------+-------+-------+""")
+        for z in rs: 
+            for j in z: 
+                print(j,end="\t |")
+            print()
+            
+    elif x==2:
+        o=pyfiglet.figlet_format("Supplier Table")
+        print(o)
+        o=int(input("1. Everything 2. Supplier-code \nEnter no.: "))
+        if o==1:
+            sql=("select * from supplier") 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                for j in i: 
+                    print(j,end="\t |")
+                print()
+        elif o==2:
+            supcode=input('Enter supcode: ')
+            sql=("select * from supplier where supcode='{}'").format(supcode) 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                for j in i: 
+                    print(j,end="\t |")
+                print()
+        else:
+            print("Enter correct option!!!")
+            
+    elif x==3:
+        o=pyfiglet.figlet_format("Sales Table")
+        print(o)
+        o=int(input("1. Everything 2. Month-Based \nEnter no.: "))
+        if o==1:
+            sql=("select * from monthly_sales") 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            print("""
+---------+-------+-----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+---------------+
+ slno    | itcode| itname                | Jan   | Feb   | Mar   | Api   | May   | Jun   | Jul   | Aug   | Sep   | Oct   | Nov   | Dece  | Sales | Cost  | Total_cost    |
+---------+-------+-----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+---------------+""")
+            for i in rs: 
+                for j in i: 
+                    print(j,end="\t |")
+                print()
+            print('---------+-------+-----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+---------------+')
+        elif o==2:
+            x=int(input('Enter month no.: '))
+            month=''
+            if x==1:
+                month='Jan'
+            elif x==2:
+                month='Feb'
+            elif x==3:
+                month='Mar'
+            elif x==4:
+                month='Api'
+            elif x==5:
+                month='May'
+            elif x==6:
+                month='Jun'
+            elif x==7:
+                month='Jul'
+            elif x==8:
+                month='Aug'
+            elif x==9:
+                month='Sep'
+            elif x==10:
+                month='Oct'
+            elif x==11:
+                month='Nov'
+            elif x==12:
+                month='Dece'
+            sql=("SELECT itcode, itname, {c} FROM monthly_sales".format(c=month)) 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                for j in i: 
+                    print(j,end="\t |")
+                print()
+        else:
+            print("Enter correct option!!!")
+
+def structure():
+    print('\nTable structure')
+    x=int(input("Item table ->1 Supplier table ->2 Sales Table -> 3 \nEnter no.: "))
+    if x==1:
+        sql=("desc item")
+        cursor.execute(sql)
+        rs=cursor.fetchall()
+        print("---------+---------------+-------+-------+-------+-------+")
+        print("Field    |Type           |Null   |Key    |Default|Extra  |")
+        print("---------+---------------+-------+-------+-------+-------+")
+        for i in rs:
+            for j in i:
+                print(j,end="\t |")
+            print()
+        print("---------+---------------+-------+-------+-------+-------+")
+    elif x==2:
+        sql=("desc supplier")
+        cursor.execute(sql)
+        rs=cursor.fetchall()
+        print("---------+---------------+-------+-------+-------+-------+")
+        print("Field    |Type           |Null   |Key    |Default|Extra  |")
+        print("---------+---------------+-------+-------+-------+-------+")
+        for i in rs:
+            for j in i:
+                print(j,end="\t |")
+            print()
+        print("---------+---------------+-------+-------+-------+-------+")
+    elif x==3:
+        sql=("desc monthly_sales;")
+        cursor.execute(sql)
+        rs=cursor.fetchall()
+        print("---------+---------------+-------+-------+-------+-------+")
+        print("Field    |Type           |Null   |Key    |Default|Extra  |")
+        print("---------+---------------+-------+-------+-------+-------+")
+        for i in rs:
+            for j in i:
+                print(j,end="\t |")
+            print()
+        print("---------+---------------+-------+-------+-------+-------+")
+    else:
+        print("Enter correct option!!!")
+        
+
+def sort():           #SORT
+    x=int(input("Item table ->1 Supplier table ->2 Sales Table -> 3 \nEnter no.: ")) 
+    if x==1:
+        print("CONTENTS FROM ITEM TABLE")        
+        sql=("select * from item order by itname") 
+        cursor.execute(sql) 
+        rs=cursor.fetchall()
+        for i in rs: 
+            for j in i: 
+                print(j,end="\t |")
+            print()
+            
+    elif x==2:
+        print("CONTENTS FROM SUPPLIER TABLE")
+        o=int(input("1. Supplier Name 2. Item Name \nEnter no.: "))
+        if o==1:
+            sql=("select * from supplier order by supname") 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                for j in i: 
+                    print(j,end="\t |")
+                print()
+        elif o==2:
+            sql=("select * from supplier order by itname") 
+            cursor.execute(sql) 
+            rs=cursor.fetchall()
+            for i in rs: 
+                for j in i: 
+                    print(j,end="\t |")
+                print()
+        else:
+            print("Enter correct option!!!")
+            
+    elif x==3:
+        print("\nCONTENTS FROM SALES TABLE")
+        sql=("select * from monthly_sales order by itname") 
+        cursor.execute(sql) 
+        rs=cursor.fetchall()
+        for i in rs: 
+            for j in i: 
+                print(j,end="\t |")
+            print()
+def codes():
+    # Item Table
+    cursor.execute('create table item(slno int(5) not null auto_increment primary key , itcode varchar(10) unique , itname varchar(35) unique, itstock int(5), itprice float(5,2))')
+    cursor.execute('insert into item values(501,"it01","Thermometer     .",10,100);')
+    cursor.execute('insert into item values(502,"it02","Panadol extra   .",20,100);')
+    cursor.execute('insert into item values(503,"it03","Bandage tape    .",30,100);')
+    cursor.execute('insert into item values(504,"it04","Bandage wrap    .",40,100);')
+    cursor.execute('insert into item values(505,"it05","Medical gloves  .",50,100);')
+    cursor.execute('insert into item values(506,"it06","Cetirizine syrup.",60,100);')
+    cursor.execute('insert into item values(507,"it07","Sanitizer       .",70,100);')
+    cursor.execute('insert into item values(508,"it08","Medical wipes   .",80,100);')
+    cursor.execute('insert into item values(509,"it09","Moov rapid relief",90,100);')
+    cursor.execute('insert into item values(510,"it10","Adol syrup      .",100,100);')
+    con.commit()
+    print(" -> Details added from item table")
+    # Supplier Table
+    cursor.execute("create table supplier (itcode varchar(10),itname varchar(35) unique,supcode varchar(10), supname varchar(35) not null, supcont int(15))")
+    cursor.execute('insert into supplier values("it01","Thermometer     .","sc01","Tom   .",508994061);')
+    cursor.execute('insert into supplier values("it02","Panadol extra   .","sc02","Tinu  .",508994062);')
+    cursor.execute('insert into supplier values("it03","Bandage tape    .","sc03","Jerry .",508994063);')
+    cursor.execute('insert into supplier values("it04","Bandage wrap    .","sc04","Raju  .",508994064);')
+    cursor.execute('insert into supplier values("it05","Medical gloves  .","sc05","Binu  .",508994065);')
+    cursor.execute('insert into supplier values("it06","Cetirizine syrup ","sc06","Biju  .",508994066);')
+    cursor.execute('insert into supplier values("it07","Sanitizer       .","sc07","Mohan .",508994067);')
+    cursor.execute('insert into supplier values("it08","Medical wipes   .","sc08","Rajesh.",508994068);')
+    cursor.execute('insert into supplier values("it09","Moov rapid relief","sc09","Suresh.",508994069);')
+    cursor.execute('insert into supplier values("it10","Adol syrup      .","sc10","M.Ali .",508994070);')
+    con.commit()
+    print("\n -> Details added from supplier table")
+    #Monthly Sales
+    cursor.execute('create table monthly_sales (slno int(5) primary key auto_increment , itcode varchar(10), itname varchar(35) unique, Jan  int(5) default 0, Feb  int(5) default 0, Mar  int(5) default 0, Api  int(5) default 0, May  int(5) default 0, Jun int(5) default 0, Jul int(5) default 0, Aug int(5) default 0, Sep int(5) default 0, Oct int(5) default 0, Nov  int(5) default 0, Dece int(5) default 0, Total_sales int(5), itcost int(5), Total_cost int(5))')
+    cursor.execute('insert into monthly_sales values (501,"it01","Thermometer      .",234,253,24,231,232,234,31,544,636,23,0,123,2565,100,256500);')
+    cursor.execute('insert into monthly_sales values (502,"it02","Panadol extra    .",920,876,354,636,453,865,756,423,634,101,868,0,6886,100,688600);')
+    cursor.execute('insert into monthly_sales values (503,"it03","Bandage tape     .",456,747,0,758,966,646,0,654,745,453,636,0,6061,100,606100);')
+    cursor.execute('insert into monthly_sales values (504,"it04","Bandage wrap     .",234,253,24,0,232,234,31,544,0,23,424,123,2122,100,212200);')
+    cursor.execute('insert into monthly_sales values (505,"it05","Medical gloves   .",100,100,100,100,100,100,100,100,100,100,100,100,1200,100,120000);')
+    cursor.execute('insert into monthly_sales values (506,"it06","Cetirizine syrup .",456,0,465,758,0,646,345,654,745,453,636,756,5914,100,591400);')
+    cursor.execute('insert into monthly_sales values (507,"it07","Sanitizer        .",234,253,24,231,232,234,31,544,636,23,0,123,2565,100,256500);')
+    cursor.execute('insert into monthly_sales values (508,"it08","Medical wipes    .",920,876,354,636,453,865,756,423,0,101,868,234,6486,100,648600);')
+    cursor.execute('insert into monthly_sales values (509,"it09","Moov rapid relief.",456,0,465,758,966,0,0,654,745,453,636,0,5133,100,513300);')
+    cursor.execute('insert into monthly_sales values (510,"it10","Adol syrup       .",234,0,24,231,0,234,31,544,636,23,424,123,2504,100,250400);')
+    con.commit()
+    print("\n -> Details added from customer_details table")    
+    
+def registration():
+    a=input("Enter the username: ")
+    b=input("Enter the passwords: ")
+    List=[a,b]
+    with open('Project.csv', 'a',newline='') as f_object:
+        writer_object = writer(f_object)
+        writer_object.writerow(List)
+        f_object.close()
+
+'''def checking():
+    with open('Project.csv','r') as csv_file:
+        read = reader(csv_file)
+        username=input("Enter the username: ")
+        pswrd=input("Enter the passward: ")
+        for row in read:
+            if row[0]==username:
+                if row[1]==pswrd:
+                    print()
+        csv_file.close()'''
+
+def menudriven():
+    print('\n\n\n')
+    print(colored(('  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'), color="cyan"))
+    print((colored(pyfiglet.figlet_format("   Medical Store"), color="green")))
+    print(colored(('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'), color="cyan"))
+    print("\n\n")
+    menu()
+    while True:
+        ch=int(input("\nEnter your Option: "))
+        if ch==0:
+            menu()
+        elif ch==1:
+            create()
+        elif ch==2:
+            edit()
+        elif ch==3:
+            delete()
+        elif ch==8:
+            sort()
+        elif ch==9:
+            display()
+        elif ch==10:
+            print('\n\n')
+            print((colored(pyfiglet.figlet_format("Thank You!!"), color="cyan")))
+            break
+        else:
+            print(colored(('\nEnter Correct Option!!'), color="red"))
+
+
+
+# MENU DRIVEN PROGRAM
+paswrd=input("Enter 'login': ")
+while True:
+    if paswrd=='admin@123':
+        ch=int(input("\n\n\n~~~~~ADMIN MODE~~~~~\n1 - Add values \n2 - Table structure \n9 - Registration\n0 - Exit\nEnter the option: "))
+        if ch==1:
+            codes()
+            print("~~~ DONE ~~~")
+        elif ch==2:
+            print("~~~~~TABLE STRUCTURE~~~~~")
+            structure()
+        elif ch==9:
+            print("~~~~~New Registration!!!~~~~~")
+            registration()
+        elif ch==0:
+            print("THANK YOU")
+            break
+        else:
+            print(colored(('\nEnter Correct Option!!'), color="red"))
+    
+    elif paswrd=='login':
+        with open('Project.csv','r') as csv_file:
+            read = reader(csv_file)
+            username=input("Enter the username: ")
+            pswrd=input("Enter the passward: ")
+            for row in read:
+                if row[0]==username:
+                    if row[1]==pswrd:
+                        menudriven()
+            break
+            csv_file.close()
+        
+    else:
+        print(colored(('\nEnter Correctly!!!!!'), color="red"))
+        print("Please try again!!")
+        break
+
+
+# as of 28/09/2022
+
