@@ -50,38 +50,17 @@ else:
     print(word," occurs ",count," times")
 '''
 
-# 4 - Program to do binary search using user defined function
+# 4 - Program to perform bubble sort using user defined function
 '''
-def bubblesort(L):
+def BubbleSort():
+    L = [eval(i) for i in input("Enter the list items : ").split()]
     for i in range(len(L)):
-        for j in range(len(L)-1-i):
-            if L[j]>L[j+1]: 
-                L[j],L[j+1]=L[j+1],L[j]
-    print("\nSorted : ",L)
+        for j in range(len(L)-1):
+            if L[j] > L[j+1]:
+                L[j], L[j+1] = L[j+1], L[j]
+    return L
 
-def binarysearch(L,s):
-    low=found=0
-    high=len(L)-1
-    for i in range(len(L)):
-        mid=(low+high)//2
-        if s<L[mid]: #> for descending 
-            high=mid
-        elif s>L[mid]: #< for descending
-            low=mid+1
-        else:
-            found=1
-            break
-    if found==1:
-        print("Element is present in the given list")
-    else:
-        print("Element not found!!!!")   
-
-L=[10,-2,12,7,0]
-print("Example List")
-print(L)
-bubblesort(L)
-s=int(input("Enter the element to be searched : "))
-binarysearch(L,s)
+print(BubbleSort())
 '''
  
 # 5 - Program to read and display file content line by line with each word separated by “#”
@@ -364,80 +343,40 @@ while True:
 '''
 
 
-# 13 - Program to implement Queue in Python using List
+# 13 - Program to perform Binary and Linear search in Python using List
 '''
-def isEmpty(Q):
-    if len(Q)==0:
-        return True
+def LinearSearch():
+    L = [eval(i) for i in input("Enter the list items : ").split()]
+    c = eval(input("Enter element to search : "))
+    for i in range(len(L)):
+        if L[i] == c:
+            print("Element found at index", i)
+            break
     else:
-        return False
- 
+        print("Element not found")
 
-def Enqueue(Q,item):
-    Q.append(item)
-    if len(Q)==1:
-        front=rear=0
+def BinarySearch():
+    L = [eval(i) for i in input("Enter the list items : ").split()]
+    c = eval(input("Enter element to search : "))
+    L.sort()
+    low = found = 0
+    high = len(L) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if L[mid] == c:
+            found = 1
+            break
+        elif L[mid] > c:
+            high = mid - 1
+        else:
+            low = mid + 1
+    if found == 1:
+        print("Element found")
     else:
-        rear=len(Q)-1
- 
-def Dequeue(Q):
-    if isEmpty(Q):
-        return "Underflow"
-    else:
-        val = Q.pop(0)
-    if len(Q)==0:
-        front=rear=None
-    return val
-def Peek(Q):
-    if isEmpty(Q):
-        return "Underflow"
-    else:
-        front=0
-        return Q[front]
- 
-def Show(Q):
-    if isEmpty(Q):
-        print("Sorry No items in Queue ")
-    else:
-        t = len(Q)-1 
-        print("(Front)",end=' ')
-        front = 0
-        i=front
-        rear = len(Q)-1 
-        while(i<=rear):
-            print(Q[i],"==>",end=' ')
-            i+=1
-        print()
+        print("Element not found")
 
-front=rear=None
-while True:
-    print("**** QUEUE DEMONSTRATION ******")
-    print("1. ENQUEUE ")
-    print("2. DEQUEUE")
-    print("3. PEEK")
-    print("4. SHOW QUEUE ")
-    print("0. EXIT")
-    ch = int(input("Enter your choice :"))
-    if ch==1:
-        Q = int(input("Enter Item to Insert :"))
-        Enqueue(Q)
-    elif ch==2:
-        val = Dequeue(Q)
-        if val=="Underflow":
-            print("Queue is Empty")
-        else:
-            print("\nDeleted Item was :",val)
-    elif ch==3:
-        val = Peek(Q)
-        if val=="Underflow":
-            print("Queue Empty")
-        else:
-            print("Front Item :",val)
-    elif ch==4:
-        Show(Q)
-    elif ch==0:
-        print("Bye")
-        break
+LinearSearch()
+BinarySearch()
 '''
 
 # 14 - Program to take 10 sample phishing email, and find the most common word occurring
